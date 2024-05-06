@@ -1,0 +1,21 @@
+Dependencies for Project 'MLX90640_TEST_MCU32', Target 'MLX90640_TEST_MCU32': (DO NOT MODIFY !)
+F (.\startup_stm32f10x_xl.s)(0x5DA85945)(--cpu Cortex-M3 -g --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x--list .\startup_stm32f10x_xl.lst --xref -o .\startup_stm32f10x_xl.o --depend .\startup_stm32f10x_xl.d)
+F (.\main.c)(0x5DA96D5A)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x-o .\main.o --omf_browse .\main.crf --depend .\main.d)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\cpu.h)(0x5DA84A5C)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\IIC.h)(0x5DA962F8)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\MLX90640.h)(0x5DA91203)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\MLX90640_ExFun.h)(0x5DA94D1B)
+F (.\cpu.c)(0x5DA962F8)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x-o .\cpu.o --omf_browse .\cpu.crf --depend .\cpu.d)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\cpu.h)(0x5DA84A5C)
+F (.\IIC.c)(0x5DA962F8)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x-o .\iic.o --omf_browse .\iic.crf --depend .\iic.d)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\cpu.h)(0x5DA84A5C)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\iic.h)(0x5DA962F8)
+F (.\MLX90640.c)(0x5DA96BA7)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x-o .\mlx90640.o --omf_browse .\mlx90640.crf --depend .\mlx90640.d)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\iic.h)(0x5DA962F8)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\cpu.h)(0x5DA84A5C)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\MLX90640.h)(0x5DA91203)
+I (d:\Keil\ARM\ARMCC\include\math.h)(0x51C7B744)
+F (.\MLX90640_ExFun.c)(0x5DA96EFC)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I d:\Keil\ARM\RV31\INC-I d:\Keil\ARM\CMSIS\Include-I d:\Keil\ARM\Inc\ST\STM32F10x-o .\mlx90640_exfun.o --omf_browse .\mlx90640_exfun.crf --depend .\mlx90640_exfun.d)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\MLX90640_ExFun.h)(0x5DA94D1B)
+I (F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程（8位32位API工程模板）\4.多项式插值&伪彩计算（32位MCU）\cpu.h)(0x5DA84A5C)
+I (d:\Keil\ARM\ARMCC\include\math.h)(0x51C7B744)

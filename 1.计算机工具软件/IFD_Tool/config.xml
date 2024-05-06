@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="GB2312"?>
+<IFD_TOOL>
+	<COMPORT PortName="COM5" Baud="460800" IntervalTimeout="50"/>
+	<AUXFUN TrSource="0" TrValue="10.0" TempAddConst="17" AlarmH="False" AlarmHValue="30" MaskLowTemperatureColor="False" MaskLowTemperatureValue="30.5"/>
+</IFD_TOOL>

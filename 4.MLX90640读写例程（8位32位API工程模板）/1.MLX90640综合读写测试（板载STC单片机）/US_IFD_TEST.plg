@@ -1,0 +1,14 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+F:\我的程序\单片机程序\红外成像仪\用户资料\4.MLX90640读写例程STC单片机\1.MLX90640综合读写测试\MLX90640_TEST01.uvproj
+Project File Date:  10/05/2019
+
+<h2>Output:</h2>
+Build target 'US_IFD_TEST'
+linking...
+Program Size: data=15.1 xdata=1760 const=0 code=3267
+creating hex file from "US_IFD_TEST"...
+"US_IFD_TEST" - 0 Error(s), 0 Warning(s).

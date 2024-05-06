@@ -1,0 +1,9 @@
+"STARTUP.obj",
+"main.obj",
+".\LIB_IIC.LIB",
+"MLX90640.obj",
+"readme.obj" 
+TO "US_IFD_TEST" 
+
+DISABLEWARNING (15,16) 
+REMOVEUNUSED 

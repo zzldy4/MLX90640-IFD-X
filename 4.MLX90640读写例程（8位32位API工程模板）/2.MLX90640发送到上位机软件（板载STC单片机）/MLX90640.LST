@@ -1,0 +1,184 @@
+C51 COMPILER V9.00   MLX90640                                                              10/05/2019 11:31:58 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MLX90640
+OBJECT MODULE PLACED IN MLX90640.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE MLX90640.c LARGE OMF2 OPTIMIZE(SIZE) BROWSE DEBUG
+
+line level    source
+
+   1          /********************************************************************
+   2          **                           包含头文件
+   3          ********************************************************************/
+   4          #include <STC8FXX.h>
+   5          #include "cpu.h"
+   6          #include "iic.h"
+   7          #include "MLX90640.h"
+   8          
+   9          void MLX90640_I2CInit()
+  10          {   
+  11   1          IIC_Stop();
+  12   1      }
+  13          //从指定地址读取n个字（每个字占用2个字节）
+  14          unsigned char MLX90640_I2CRead(unsigned int startAddress, unsigned int nWordsRead, unsigned int *datas)
+  15          {
+  16   1              unsigned char c1,c2;
+  17   1              unsigned int i;
+  18   1              unsigned char Msb,Lsb;
+  19   1      
+  20   1              Msb=(unsigned char)(startAddress>>8);
+  21   1              Lsb=(unsigned char)(startAddress&0x00FF);       
+  22   1      
+  23   1              IIC_Start();                                    //发送起始命令  
+  24   1      
+  25   1              IIC_SendData(0x66);                             //发送设备地址+写命令   
+  26   1              IIC_RecvACK();
+  27   1              IIC_SendData(Msb);                  //发送要操作的地址值2字节
+  28   1              IIC_RecvACK();
+  29   1              IIC_SendData(Lsb);
+  30   1              IIC_RecvACK();
+  31   1              
+  32   1              IIC_Start();                                   //发送起始命令
+  33   1              IIC_SendData(0x67);                             //发送设备地址+读命令
+  34   1              IIC_RecvACK();
+  35   1              for (i=0;i<nWordsRead;i++)
+  36   1              {               
+  37   2                      c1=IIC_RecvData();
+  38   2                      IIC_SendACK();
+  39   2                      c2=IIC_RecvData();
+  40   2                      if (i==(nWordsRead-1))
+  41   2                              IIC_SendNAK();
+  42   2                      else
+  43   2                              IIC_SendACK();
+  44   2      
+  45   2                      datas[i]=c1;
+  46   2                      datas[i]<<=8;
+  47   2                      datas[i]|=c2;           
+  48   2              }       
+  49   1              IIC_Stop();                                     //发送停止命令
+  50   1      
+  51   1              return 0;
+  52   1      }
+  53          
+  54          unsigned char MLX90640_I2CWrite(unsigned int writeAddress, unsigned int word)
+  55          {
+C51 COMPILER V9.00   MLX90640                                                              10/05/2019 11:31:58 PAGE 2   
+
+  56   1              IIC_Start();                                    //发送起始命令
+  57   1              IIC_SendData(0x66);                             //发送设备地址+写命令
+  58   1              IIC_RecvACK();
+  59   1              IIC_SendData(writeAddress>>8);                  //发送要操作的地址值2字节
+  60   1              IIC_RecvACK();
+  61   1              IIC_SendData(writeAddress&0x00FF);
+  62   1              IIC_RecvACK();
+  63   1      
+  64   1              IIC_SendData(word>>8);
+  65   1              IIC_RecvACK();
+  66   1              IIC_SendData(word&0x00FF);
+  67   1              IIC_RecvACK();
+  68   1      
+  69   1              IIC_Stop();
+  70   1      
+  71   1              return 0;
+  72   1      }
+  73          
+  74          signed char MLX90640_DataReady(void)//RAM数据是否就绪，反回-1表示未就绪，0表示Frame0就绪，1表示Frame1就绪
+  75          {
+  76   1              unsigned int statusReg[1];
+  77   1      
+  78   1              MLX90640_I2CRead(0x8000, 1, statusReg);
+  79   1              if (statusReg[0]&0x0008)//有测量完成的Frame
+  80   1              {
+  81   2                      return (statusReg[0]&0x0001);
+  82   2              }
+  83   1              return (-1);
+  84   1      }
+  85          
+  86          void MLX90640_SetResolution(unsigned char resolution)
+  87          {
+  88   1          unsigned int controlRegister1;   
+  89   1          
+  90   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+  91   1      
+  92   1              controlRegister1&=~0x0C00;//bit11:10
+  93   1              controlRegister1|=(resolution<<10);
+  94   1          MLX90640_I2CWrite(0x800D, controlRegister1);
+  95   1      }
+  96          
+  97          unsigned char MLX90640_GetCurResolution(void)
+  98          {
+  99   1          unsigned int controlRegister1;
+ 100   1          unsigned int Ram;
+ 101   1          
+ 102   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 103   1          
+ 104   1          Ram = (controlRegister1 & 0x0C00) >> 10;
+ 105   1          
+ 106   1          return Ram; 
+ 107   1      }
+ 108          
+ 109          void MLX90640_SetRefreshRate(unsigned char refreshRate)
+ 110          {
+ 111   1          unsigned int controlRegister1;   
+ 112   1          
+ 113   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 114   1      
+ 115   1              controlRegister1&=~0x0380;//bit9:7
+ 116   1              controlRegister1|=(refreshRate<<7);
+ 117   1          MLX90640_I2CWrite(0x800D, controlRegister1);
+C51 COMPILER V9.00   MLX90640                                                              10/05/2019 11:31:58 PAGE 3   
+
+ 118   1      }
+ 119          
+ 120          unsigned char MLX90640_GetRefreshRate(void)
+ 121          {
+ 122   1          unsigned int controlRegister1;
+ 123   1          unsigned int Ram;
+ 124   1          
+ 125   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 126   1          
+ 127   1          Ram = (controlRegister1 & 0x0380) >> 7;
+ 128   1          
+ 129   1          return Ram;
+ 130   1      }
+ 131          
+ 132          void MLX90640_SetArrangeMode(unsigned char mode)
+ 133          {
+ 134   1          unsigned int controlRegister1;   
+ 135   1          
+ 136   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 137   1      
+ 138   1              controlRegister1&=~0x1000;//bit12
+ 139   1              controlRegister1|=(mode<<12);
+ 140   1          MLX90640_I2CWrite(0x800D, controlRegister1);
+ 141   1      }
+ 142          
+ 143          unsigned char MLX90640_GetArrangeMode(void)
+ 144          {
+ 145   1          unsigned int controlRegister1;
+ 146   1          unsigned int Ram;
+ 147   1          
+ 148   1          MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 149   1          
+ 150   1          Ram = (controlRegister1 & 0x1000) >> 12;
+ 151   1          
+ 152   1          return Ram; 
+ 153   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    601    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      34
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

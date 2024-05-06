@@ -1,0 +1,187 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              12/31/2023 13:28:05 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: E:\keli\C51\BIN\C51.EXE main.c OMF2 OPTIMIZE(8,SPEED) BROWSE DEBUG
+
+line level    source
+
+   1          #include <STC8FXX.h>
+   2          #include "iic.h"
+   3          #include "MLX90640.h"
+   4          
+   5          #include <string.h>
+   6          #include <stdio.h>
+   7          #include <stdlib.h>
+   8          #include<ctype.h>
+   9          
+  10          sfr IRCCR=0x9F;
+  11          
+  12          sbit LED_STA=P5^4;//P5.4(LED_STA)
+  13          sbit LED_RUN=P5^5;//P5.5(LED_RUN)
+  14          
+  15          void Delay_us(BYTE us)
+  16          {
+  17   1              while (us--);
+  18   1      }
+  19          void Delay_ms(UINT16 ms)
+  20          {
+  21   1              unsigned char i;   
+  22   1      
+  23   1          while(ms--)
+  24   1              {
+  25   2                      for (i=0;i<10;i++)
+  26   2                              Delay_us(100);
+  27   2              }
+  28   1      }
+  29          void UART1Init(void)
+  30          {
+  31   1              P_SW1 &=~ 0xC0;                               //RXD/P3.0, TXD/P3.1
+  32   1              
+  33   1              SCON = 0x50;
+  34   1          TMOD &=~ 0xF0;
+  35   1          TL1 = 0xF4;
+  36   1          TH1 = 0xFF;
+  37   1          TR1 = 1;
+  38   1          AUXR |= 0x40;               
+  39   1      
+  40   1              ES = 1;
+  41   1              EA = 1; 
+  42   1      }
+  43          void UART1SendString(char *s)
+  44          {
+  45   1              while (*s)
+  46   1              {
+  47   2                      SBUF=*s++;
+  48   2                      while (!TI);
+  49   2                      TI=0;
+  50   2              } 
+  51   1      }
+  52          void UART2Init(void)
+  53          {       
+  54   1              unsigned char temp=TMOD;
+  55   1              P_SW2 |= 0x80;
+C51 COMPILER V9.56.0.0   MAIN                                                              12/31/2023 13:28:05 PAGE 2   
+
+  56   1              P_SW2 &= ~0x01;
+  57   1              
+  58   1              S2CON = 0x50;   
+  59   1          T2L = 0xF4;
+  60   1          T2H = 0xFF;
+  61   1          AUXR |= 0x14;
+  62   1              IE2 |= 0x01;
+  63   1              EA = 1;
+  64   1              TMOD=temp;
+  65   1      }
+  66          
+  67          void main(void)
+  68          {
+  69   1              UINT16 Datas_n16[832];
+  70   1              char tempStr[50];
+  71   1              UINT16 i;
+  72   1              UINT16 statusRegister,controlRegister1;
+  73   1              
+  74   1              P_SW2 |= 0x80;//特殊功能寄存器可写控制位
+  75   1      
+  76   1              //LED指示灯初始化
+  77   1              P5M1&=~0x30;//P5.4/5(LED_STA/LED_RUN)
+  78   1          P5M0|=0x30; 
+  79   1              LED_STA=1;
+  80   1              LED_RUN=1;
+  81   1      
+  82   1              UART1Init();//UART1=230400bps,N,8,1
+  83   1              UART2Init();    
+  84   1              
+  85   1              IIC_Init(0);    //980kHz,0:980kHz;1:700kHz;2:500kHz;3:450kHz;4:390kHz;5:345kHz...63:41kHz
+  86   1              I2CCFG|=0x80;   //使能硬件IIC接口       
+  87   1      
+  88   1              //初始化MLX90640
+  89   1              UART1SendString("MLX90640 Init...");
+  90   1              Delay_ms(20);
+  91   1              MLX90640_I2CInit();
+  92   1              Delay_ms(50);
+  93   1              UART1SendString("OK\r\n");      
+  94   1      
+  95   1              //读取寄存器并从UART1输出(MLX90640内部存储器的地址0x8000~0x8016)
+  96   1              UART1SendString("MLX90640 reading registers...\r\n");
+  97   1              MLX90640_I2CRead(0x8000, 23, Datas_n16);
+  98   1              for (i=0;i<23;i++)
+  99   1              {
+ 100   2                      sprintf(tempStr,"Reg[0x%04X]=%04X\t",0x8000+i,Datas_n16[i]);
+ 101   2                      UART1SendString(tempStr);
+ 102   2              }
+ 103   1              UART1SendString("\r\n");
+ 104   1      
+ 105   1              //设置MLX90640参数
+ 106   1              MLX90640_SetResolution(2);      //测量分辨率18位(0~3对应16,17,18,19位分辨率)
+ 107   1              MLX90640_SetRefreshRate(0);     //测量速率1Hz(0~7对应0.5,1,2,4,8,16,32,64Hz)
+ 108   1              MLX90640_SetArrangeMode(1);     //帧模式，棋盘模式（像素交错模式）,0:TV行交错;1:棋盘像素交错;
+ 109   1      
+ 110   1              //再次读取寄存器并从UART1输出(MLX90640内部存储器的地址0x8000~0x8016)
+ 111   1              UART1SendString("MLX90640 reading registers...\r\n");
+ 112   1              MLX90640_I2CRead(0x8000, 23, Datas_n16);
+ 113   1              for (i=0;i<23;i++)
+ 114   1              {
+ 115   2                      sprintf(tempStr,"Reg[0x%04X]=%04X\t",0x8000+i,Datas_n16[i]);
+ 116   2                      UART1SendString(tempStr);
+ 117   2              }
+C51 COMPILER V9.56.0.0   MAIN                                                              12/31/2023 13:28:05 PAGE 3   
+
+ 118   1              UART1SendString("\r\n");
+ 119   1      
+ 120   1              Delay_ms(200);
+ 121   1              
+ 122   1              //输出MLX90640校准参数(MLX90640内部存储器的地址0x2400~0x273F)   
+ 123   1              UART1SendString("MLX90640 reading EEPROM...\r\n");
+ 124   1              MLX90640_I2CRead(0x2400, 832, Datas_n16);
+ 125   1              for (i=0;i<832;i++)
+ 126   1              {
+ 127   2                      if (i % 32==0)
+ 128   2                      {
+ 129   3                              sprintf(tempStr,"\r\nEEM[0x%04X] ",0x2400+i);
+ 130   3                              UART1SendString(tempStr);
+ 131   3                      }
+ 132   2                      sprintf(tempStr,"%04X ",Datas_n16[i]);
+ 133   2                      UART1SendString(tempStr);
+ 134   2              }
+ 135   1              UART1SendString("\r\n");
+ 136   1              Delay_ms(50);   
+ 137   1              
+ 138   1              while (1)
+ 139   1              {
+ 140   2                      Delay_ms(20);
+ 141   2                      MLX90640_I2CRead(0x800D, 1, &controlRegister1);
+ 142   2                      MLX90640_I2CRead(0x8000, 1, &statusRegister);
+ 143   2                      if (statusRegister&0x0008)//有测量完成的Frame
+ 144   2                      {
+ 145   3                              LED_RUN=1;
+ 146   3      
+ 147   3                              MLX90640_I2CWrite(0x8000, statusRegister&(~0x0018));
+ 148   3      
+ 149   3                              MLX90640_I2CRead(0x0400, 832, Datas_n16);
+ 150   3                              for (i=0;i<832;i++)
+ 151   3                              {
+ 152   4                                      if (i % 32==0)
+ 153   4                                      {
+ 154   5                                              sprintf(tempStr,"\r\nFRM[0x%04X] ",0x0400+i);
+ 155   5                                              UART1SendString(tempStr);
+ 156   5                                      }
+ 157   4                                      sprintf(tempStr,"%04X ",Datas_n16[i]);
+ 158   4                                      UART1SendString(tempStr);
+ 159   4                              }
+ 160   3                              UART1SendString("\r\n");
+ 161   3      
+ 162   3                              //输出控制寄存器1和状态寄存器中的子页码
+ 163   3                              sprintf(tempStr,"CONTROL1=%04X\r\n",controlRegister1);
+ 164   3                              UART1SendString(tempStr);
+ 165   3                              sprintf(tempStr,"STATUS=%04X\r\n",statusRegister&0x0001);
+ 166   3                              UART1SendString(tempStr);
+ 167   3      
+ 168   3                              LED_RUN=0;
+ 169   3                      }       
+ 170   2              }
+ 171   1      }
+*** ERROR C241 IN LINE 171 OF main.c: 'main': auto segment too large
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)
